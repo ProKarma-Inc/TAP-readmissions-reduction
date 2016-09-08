@@ -1,0 +1,8 @@
+---
+applications:
+- name: patient-risk
+  memory: 1G
+  disk_quota: 1G
+  host: patient-risk
+  instances: 1
+  command: ng serve

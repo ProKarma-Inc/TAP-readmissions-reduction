@@ -1,0 +1,59 @@
+
+.bgGreen
+{
+  background-color: #5CB85C;
+}
+
+.bgYellow
+{
+  background-color: #F7D83D;
+}
+
+.bgOrange
+{
+  /*background-color: #FF5A00;*/
+  background-color: #F9A15A;
+}
+
+.bgRed
+{
+  background-color: #FC4133;
+}
+
+/*** Div table start ***/
+.div-table
+{
+  display: table;
+}
+
+.div-table div
+{
+  display: table-row;
+}
+
+.div-table div span
+{
+  display: table-cell;
+  padding: 3px;
+}
+
+.div-table .spanright
+{
+  display: table-cell;
+  padding: 3px;
+  text-align: right;
+}
+
+/* add borders */
+.div-table,
+.div-table div span
+{
+  /*border: 1px solid black;*/
+}
+
+/* bold on 1st row */
+.div-table div:nth-child(1)
+{
+  /*font-weight: bold;*/
+}
+/*** Div table end ***/

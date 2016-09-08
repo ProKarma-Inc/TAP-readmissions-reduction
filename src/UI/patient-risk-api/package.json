@@ -1,0 +1,14 @@
+{
+	"name": "patient-risk-api",
+	"main": "server.js",
+	"dependencies":{
+		"express": "4.14.0",
+		"mongoose": "4.5.9",
+		"body-parser": "1.15.2",
+		"fs" : "0.0.2"
+	},
+	"engines": {
+		"node": "6.4.0",
+		"npm": "3.10.3"
+	}
+}

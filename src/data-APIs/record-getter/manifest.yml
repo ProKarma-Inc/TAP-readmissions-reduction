@@ -1,0 +1,12 @@
+---
+applications:
+- name: record-getter
+  memory: 512MB
+  disk_quota: 512MB
+  command: bin/server.sh
+  timeout: 180
+  instances: 1
+  env:
+    CC_URI: api.52.88.248.77.xip.io
+    UAA_URI: uaa.52.88.248.77.xip.io
+

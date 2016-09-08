@@ -1,0 +1,81 @@
+<article>
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="col-md-6 col-md-offset-1 verticalLine">
+        <chart [options]="comorbidSeverityOptions"> </chart>
+        <br />
+        <div class="graphcaption"><strong>Comorbidity Severity:</strong> {{patient != null ? patient?.comorbid_severity?.toFixed(2) : 0}}</div>
+        <br />
+        <chart [options]="comorbidMortalityOptions"> </chart>
+        <br />
+        <div class="graphcaption"><strong>Comorbidity Mortality:</strong> {{patient != null ? patient?.comorbid_mortality?.toFixed(2) : 0}}</div>
+        <br />
+        <chart [options]="ageOptions"> </chart>
+        <br />
+        <div class="graphcaption"><strong>Age:</strong> {{patient?.age}}</div>
+      </div>
+      <div class="col-md-3 col-md-offset-1">
+
+        <div class="div-table">
+          <div>
+            <span class="spanright patientdata"><strong>Admission Type:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.admission_type : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Admission Date:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.admittime?.split('T')[0] : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Diagnosis:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.diagnosis : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Insurance:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.insurance : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Age:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.age : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Date of birth (DOB):</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.dob.split('T')[0] : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Gender:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.gender : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Marital Status:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.marital_status : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Language:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.language : '-'}}</span>
+          </div>
+          <div>
+            <span class="spanright patientdata"><strong>Ethnicity:</strong></span>
+            <span class="patientdata">{{patient != null ? patient?.ethnicity : '-'}}</span>
+          </div>
+        </div>
+
+        <hr>
+        <span class="riskscore" [style.background-color]="patient != null ? patient.readmissionRiskScoreColor: '#333333'">
+          <strong>Risk Score:</strong> {{patient != null ? patient?.readmissionRiskScoreAsPercent : 'Calculating...'}}</span>
+        <br>
+        <button type="button" (click)="backToPatientSelect()" class="btn btn-primary center-block">Back to Patient Select</button>
+
+        <br style="line-height: 15em;">
+        <hr>
+        <div class="div-table">
+          <div>
+            <span>
+            <pk-risk-legend></pk-risk-legend>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,12 @@
+*.iml
+.idea/
+
+logs/
+*.log
+npm-debug.log*
+node_modules/
+
+*.pid
+*.seed
+
+tmp/

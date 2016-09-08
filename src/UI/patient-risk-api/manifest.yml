@@ -1,0 +1,10 @@
+---
+applications:
+- name: patient-risk-api
+  memory: 512MB
+  disk_quota: 512M
+  host: patient-risk-api
+  command: node server.js
+  instances: 1
+  -services:
+    - patient-readmission

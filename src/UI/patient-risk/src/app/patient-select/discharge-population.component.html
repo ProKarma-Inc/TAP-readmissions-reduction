@@ -1,0 +1,86 @@
+<div class="container-fluid">
+ <div class="row">
+    <div id="left" class="col-md-9 verticalLine">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+          <tr>
+            <th *ngFor="let column of columns" (click)="sortPatientList(column)">
+              {{column}}
+              <span *ngIf="column === 'Risk Score' && riskScoreSortingDirection === ''">&#x2195;</span>
+              <span *ngIf="column === 'Risk Score' && riskScoreSortingDirection === 'Dsc'">&#x25B2;</span>
+              <span *ngIf="column === 'Risk Score' && riskScoreSortingDirection === 'Asc'">&#x25BC;</span>
+              <span *ngIf="column === 'Age' && ageSortingDirection === ''">&#x2195;</span>
+              <span *ngIf="column === 'Age' && ageSortingDirection === 'Dsc'">&#x25B2;</span>
+              <span *ngIf="column === 'Age' && ageSortingDirection === 'Asc'">&#x25BC;</span>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let patient of displayedPatients; let i = index;">
+            <td><a (click)="goToDetails(patient)">{{patient.hadm_id}}</a></td>
+            <td>{{patient.age}}</td>
+            <td>{{patient.gender}}</td>
+            <td>{{patient.marital_status}}</td>
+            <td>{{patient.language}}</td>
+            <td>{{patient.admittime?.split('T')[0]}}</td>
+            <td>{{patient.admission_type}}</td>
+            <td>{{patient.dischtime?.split('T')[0]}}</td>
+            <td [ngStyle]="{color: patient.readmissionRiskScoreColor}">{{patient.readmissionRiskScoreAsPercent}}</td>
+            <td><a (click)="goToDetails(patient)">Details</a></td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="text-center">
+          <ul class="pagination">
+            <li id="PreviousPage" [class.disabled]="isPreviousDisabled()"><a (click)="!isPreviousDisabled() && previousPage()">&laquo;</a></li>
+            <li id="Page{{page}}" *ngFor="let page of numberOfPages; let isFirst = first" [class.hidden]="hideDisplayButton(page)" [class.active]="isFirst"><a (click)="goToPage(page)">{{page}}</a>
+            <li id="nextPage" [class.disabled]="isNextDisabled()"><a (click)=" !isNextDisabled() && nextPage()">&raquo;</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div id="right" class="col-md-3 filterpadding">
+     <div id="Filtering" class="row">
+       <h4>Filtering Options</h4><hr>
+        <p>By max age: <strong>{{ageMaxSliderValue}}</strong></p>
+        <input type="range" min="0" max="120" value="{{ageMaxSliderValue}}"(change)="filterByAge()" [(ngModel)]="ageMaxSliderValue"/>
+        <br>
+        <p>By min age: <strong>{{ageMinSliderValue}}</strong></p>
+        <input type="range" min="0" max="120" value="{{ageMinSliderValue}}" (change)="filterByAge()" [(ngModel)]="ageMinSliderValue"/>
+        <br>
+        <div class="div-table">
+          <div>
+            <span>
+              <u>By Risk Level:</u><br>
+              <input type="radio" name="riskLevel" value="Low" [ngModel]="{checked: currentRiskScoreLevelFilter === 'low'}" (change)="filterByRiskLevel('low')">Low<br>
+              <input type="radio" name="riskLevel" value="Borderline" [ngModel]="{checked: currentRiskScoreLevelFilter === 'borderline'}" (change)="filterByRiskLevel('borderline')">Borderline<br>
+              <input type="radio" name="riskLevel" value="High" [ngModel]="{checked: currentRiskScoreLevelFilter === 'high'}"(change)="filterByRiskLevel('high')">High<br>
+              <input type="radio" name="riskLevel" value="Critical" [ngModel]="{checked: currentRiskScoreLevelFilter === 'critical'}"  (change)="filterByRiskLevel('critical')">Critical<br>
+              <input id="defaultRiskLevel" type="radio" name="riskLevel" value="All" [ngModel]="{checked: currentRiskScoreLevelFilter === 'all'}" (change)="filterByRiskLevel('all')">All<br>
+            </span>
+            <span>
+              <pk-risk-legend></pk-risk-legend>
+            </span>
+          </div>
+        </div>
+        <br>
+        Admission Discharge Date (From):
+        <input type="date" [(ngModel)]="filterByAdmissionDateFrom" (change)="filterAdmissionDateFrom()">
+        <br>
+        Admission Discharge Date (To):
+        <input type="date" [(ngModel)]="filterByAdmissionDateTo" (change)="filterAdmissionDateTo()">
+        <br><br>
+        <button class="btn primary" (click)="clearFilters()">Clear Filters</button>
+        <br><br>
+        <hr>
+      </div>
+
+
+      <div id="Legend" class="row">
+
+      </div>
+
+
+     </div>
+</div>

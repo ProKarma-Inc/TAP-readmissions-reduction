@@ -1,0 +1,17 @@
+---
+applications:
+- name: risk-scorer
+  memory: 2G
+  disk_quota: 1G
+  command: bin/server.sh
+  timeout: 180
+  instances: 1
+  #services:
+  #- hdfs-atk # hdfs service (get-user-directory plan) which holds the model tar file
+  #- kerberos-for-atk
+  env:
+    uri: 'hdfs://cdh-master-0.node.envname.consul/user/vcap/readmission-scorer-v1.dat' # Model location
+    CC_URI: api.52.88.248.77.xip.io
+    UAA_URI: uaa.52.88.248.77.xip.io
+    UAA_CLIENT_NAME: atk-client
+    UAA_CLIENT_PASSWORD: atk-client-password-xxxx
