@@ -28,12 +28,11 @@ export class ReAdmissionService {
     return referenceData$;
   }
 
-  public get30DayReAdmissionRates(){
+  public get30DayReAdmissionRates(): Observable<ReAdmissionData>{
     let reAdmissionData$ = this.http
       .get(`${this.baseReferenceDataUri + 'get-readmission-data'}`, { headers: this.getHeaders() })
-      .map(mapReAdmissionData)
+      .map(toReAdmissionData)
       .catch(handleError);
-
     return reAdmissionData$;
   }
 
@@ -44,19 +43,13 @@ export class ReAdmissionService {
   }
 }
 
-function mapReAdmissionData(response: Response): ReAdmissionData{
+function toReAdmissionData(response: Response): ReAdmissionData{
   let jsonResponse = response.json();
   let reAdmissionData = <ReAdmissionData>({
     dates: jsonResponse.dates,
-    readmissionRates: jsonResponse.readmissionDates
+    readmissionRates: jsonResponse.readmissionRates
   });
   return reAdmissionData;
-}
-
-function mapReferenceData(response: Response): ReferenceData{
-  let referenceData = response.json().map(toReferenceData);
-  //console.log(referenceData);
-  return referenceData;
 }
 
 function toReferenceData(response: any) : ReferenceData{
