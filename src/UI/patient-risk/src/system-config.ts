@@ -47,6 +47,7 @@ const barrels: string[] = [
   'app/services',
   'app/models',
   'app/risk-legend',
+  'app/re-admission-30day-rates',
   /** @cli-barrel */
 ];
 

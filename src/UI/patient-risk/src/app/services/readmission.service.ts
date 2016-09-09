@@ -4,7 +4,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ReferenceData } from '../models';
+import { ReferenceData, ReAdmissionData } from '../models';
 
 @Injectable()
 export class ReAdmissionService {
@@ -28,6 +28,15 @@ export class ReAdmissionService {
     return referenceData$;
   }
 
+  public get30DayReAdmissionRates(){
+    let reAdmissionData$ = this.http
+      .get(`${this.baseReferenceDataUri + 'get-readmission-data'}`, { headers: this.getHeaders() })
+      .map(mapReAdmissionData)
+      .catch(handleError);
+
+    return reAdmissionData$;
+  }
+
   private getHeaders(){
     let headers = new Headers();
     headers.append('Accept', 'application/json');
@@ -35,9 +44,23 @@ export class ReAdmissionService {
   }
 }
 
+function mapReAdmissionData(response: Response): ReAdmissionData{
+  let reAdmissionData = response.json().map(toReAdmissionData);
+  console.log(reAdmissionData);
+  return reAdmissionData;
+}
+
+function toReAdmissionData(response: any): ReAdmissionData{
+  let reAdmissionData = <ReAdmissionData>({
+    dates: response.dates,
+    readmissionRates: response.readmissionRates
+  });
+  return reAdmissionData;
+}
+
 function mapReferenceData(response: Response): ReferenceData{
   let referenceData = response.json().map(toReferenceData);
-  console.log(referenceData);
+  //console.log(referenceData);
   return referenceData;
 }
 
