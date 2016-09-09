@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ReAdmissionService } from '../services';
 import { ReAdmissionData } from '../models';
 
@@ -9,9 +9,22 @@ import { ReAdmissionData } from '../models';
   styleUrls: ['re-admission-30day-rates.component.css'],
   providers: [ ReAdmissionService ]
 })
-export class ReAdmission30dayRatesComponent {
+export class ReAdmission30dayRatesComponent implements OnInit{
+  private errorMessage: string;
+  private reAdmissionData: ReAdmissionData;
+
 
   constructor(private reAdmissionService: ReAdmissionService) {
 
+  }
+
+  ngOnInit(){
+    this.reAdmissionService.get30DayReAdmissionRates()
+      .subscribe(raData => {
+          this.reAdmissionData = raData;
+          console.log(raData);
+        },
+      error => this.errorMessage = error
+      );
   }
 }

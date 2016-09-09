@@ -51,9 +51,9 @@ export class DischargePopulationComponent implements OnInit{
   ngOnInit() {
     this.patientService.getAllPatients()
                       .subscribe(
-                        p => {
-                            this.currentPatients = p;
-                            this.originalPatients = p;
+                        patients => {
+                            this.currentPatients = patients;
+                            this.originalPatients = patients;
 
                             for(let i = 0; i < this.itemsPerPage; i++) {
                               this.displayedPatients.push(this.currentPatients[i]);
@@ -61,7 +61,7 @@ export class DischargePopulationComponent implements OnInit{
 
                           this.calculatePaginationButtons();
                         },
-                        e => this.errorMessage = e
+                        error => this.errorMessage = error
                       );
   }
 
