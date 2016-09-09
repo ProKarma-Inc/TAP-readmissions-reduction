@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReAdmissionService } from '../services';
 import { ReAdmissionData } from '../models';
 import { CHART_DIRECTIVES } from 'angular2-highcharts';
+import { ROUTER_DIRECTIVES, Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   moduleId: module.id,
@@ -14,11 +15,19 @@ import { CHART_DIRECTIVES } from 'angular2-highcharts';
 export class ReAdmission30dayRatesComponent implements OnInit{
   private errorMessage: string;
   private reAdmissionData: ReAdmissionData;
-
   private readmissionRatesOptions: HighchartsOptions;
+  private chartSizeAndType: any;
+  private toPatientsPage: boolean;
 
-  constructor(private reAdmissionService: ReAdmissionService) {
-
+  constructor(private reAdmissionService: ReAdmissionService, private router: Router, private activatedRouter: ActivatedRoute) {
+    let fullSize: string = this.activatedRouter.snapshot.params['fullSize'];
+    if(fullSize === 'fullSize'){
+      this.chartSizeAndType = {type: 'spline', width: 1200, height: 900};
+      this.toPatientsPage = true;
+    } else{
+      this.chartSizeAndType = {type: 'spline', width: 350, height: 250};
+      this.toPatientsPage = false;
+    }
   }
 
   ngOnInit(){
@@ -31,6 +40,15 @@ export class ReAdmission30dayRatesComponent implements OnInit{
       );
   }
 
+  public toPatientList(){
+    this.router.navigate(['']);
+  }
+
+  public navigateToReadmissionRiskChart(){
+    this.router.navigate(['/readmissionRates', 'fullSize']);
+  }
+
+
   private readmissionRatesChart() {
 
     let xAxisTitles: Array<string> = [];
@@ -38,7 +56,7 @@ export class ReAdmission30dayRatesComponent implements OnInit{
       xAxisTitles.push(this.reAdmissionData.dates[i].toString());
     }
     this.readmissionRatesOptions = {
-      chart: {type: 'spline', width: 580, height: 230},
+      chart: this.chartSizeAndType,
       title: {text: null},
       legend: {enabled: false},
       xAxis: {
@@ -55,5 +73,4 @@ export class ReAdmission30dayRatesComponent implements OnInit{
         }]
     }
   }
-
 }

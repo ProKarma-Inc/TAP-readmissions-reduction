@@ -1,4 +1,16 @@
-<p>
-  <chart [options]="readmissionRatesOptions"> </chart>
-  <br />
-</p>
+<article>
+  <div *ngIf="!toPatientsPage">
+    <span><a (click)="navigateToReadmissionRiskChart()">Expand</a></span>
+    <chart [options]="readmissionRatesOptions"> </chart>
+  </div>
+  <div *ngIf="toPatientsPage" class="container-fluid">
+    <div class="row-fluid">
+      <div class="col-md-10">
+        <chart [options]="readmissionRatesOptions"> </chart>
+      </div>
+      <div class="col-md-2">
+        <a class="btn btn-primary" (click)="toPatientList()">Back to ReAdmissions List</a>
+      </div>
+    </div>
+  </div>
+</article>
