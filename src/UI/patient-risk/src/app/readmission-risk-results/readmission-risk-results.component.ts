@@ -94,7 +94,7 @@ export class ReadmissionRiskResultsComponent implements OnInit {
     }
   }
 
-  private mortalityChart(comorbidMortalities: {One:{20}, Two: {30}, Three: {40}, Four:{50}, Five: {60}}){
+  private mortalityChart(comorbidMortalities: ComorbidsDistribution){
     let mortalityData: Array<any> = [
       { y: comorbidMortalities.One.length, marker: {symbol: 'circle'}},
       { y: comorbidMortalities.Two.length, marker: {symbol: 'circle'}},

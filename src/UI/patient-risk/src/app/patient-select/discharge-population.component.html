@@ -1,5 +1,6 @@
-<div class="container-fluid">
-   <div class="row">
+<article>
+  <div class="container-fluid">
+    <div class="row">
       <div id="left" class="col-md-9 verticalLine">
         <div class="table-responsive">
           <table class="table">
@@ -41,27 +42,27 @@
         </div>
       </div>
       <div id="right" class="col-md-3 filterpadding">
-       <div id="Filtering" class="row">
-         <h4>Filtering Options</h4><hr>
+        <div id="Filtering" class="row">
+          <h4>Filtering Options</h4><hr>
           <p>By max age: <strong>{{ageMaxSliderValue}}</strong></p>
-          <input type="range" min="0" max="120" value="{{ageMaxSliderValue}}"(change)="filterByAge()" [(ngModel)]="ageMaxSliderValue"/>
+          <input type="range" min="0" max="120" value="{{ageMaxSliderValue}}"(change)="filterByAge()" [(ngModel)]="ageMaxSliderValue">
           <br>
           <p>By min age: <strong>{{ageMinSliderValue}}</strong></p>
-          <input type="range" min="0" max="120" value="{{ageMinSliderValue}}" (change)="filterByAge()" [(ngModel)]="ageMinSliderValue"/>
+          <input type="range" min="0" max="120" value="{{ageMinSliderValue}}" (change)="filterByAge()" [(ngModel)]="ageMinSliderValue">
           <br>
           <div class="div-table">
             <div>
+            <span>
+              <u>By Risk Level:</u><br>
+              <input type="radio" name="riskLevel" value="Low" [ngModel]="{checked: currentRiskScoreLevelFilter === 'low'}" (change)="filterByRiskLevel('low')">Low<br>
+              <input type="radio" name="riskLevel" value="Borderline" [ngModel]="{checked: currentRiskScoreLevelFilter === 'borderline'}" (change)="filterByRiskLevel('borderline')">Borderline<br>
+              <input type="radio" name="riskLevel" value="High" [ngModel]="{checked: currentRiskScoreLevelFilter === 'high'}"(change)="filterByRiskLevel('high')">High<br>
+              <input type="radio" name="riskLevel" value="Critical" [ngModel]="{checked: currentRiskScoreLevelFilter === 'critical'}"  (change)="filterByRiskLevel('critical')">Critical<br>
+              <input id="defaultRiskLevel" type="radio" name="riskLevel" value="All" [ngModel]="{checked: currentRiskScoreLevelFilter === 'all'}" (change)="filterByRiskLevel('all')">All<br>
+            </span>
               <span>
-                <u>By Risk Level:</u><br>
-                <input type="radio" name="riskLevel" value="Low" [ngModel]="{checked: currentRiskScoreLevelFilter === 'low'}" (change)="filterByRiskLevel('low')" />Low<br>
-                <input type="radio" name="riskLevel" value="Borderline" [ngModel]="{checked: currentRiskScoreLevelFilter === 'borderline'}" (change)="filterByRiskLevel('borderline')" />Borderline<br>
-                <input type="radio" name="riskLevel" value="High" [ngModel]="{checked: currentRiskScoreLevelFilter === 'high'}"(change)="filterByRiskLevel('high')" />High<br>
-                <input type="radio" name="riskLevel" value="Critical" [ngModel]="{checked: currentRiskScoreLevelFilter === 'critical'}"  (change)="filterByRiskLevel('critical')" />Critical<br>
-                <input id="defaultRiskLevel" type="radio" name="riskLevel" value="All" [ngModel]="{checked: currentRiskScoreLevelFilter === 'all'}" (change)="filterByRiskLevel('all')" />All<br>
-              </span>
-              <span>
-                <pk-risk-legend></pk-risk-legend>
-              </span>
+              <pk-risk-legend></pk-risk-legend>
+            </span>
             </div>
           </div>
           <br>
@@ -75,6 +76,14 @@
           <br><br>
           <hr>
         </div>
-       </div>
+
+
+        <div>
+          <pk-re-admission-30day-rates></pk-re-admission-30day-rates>
+        </div>
+
+
+      </div>
+    </div>
   </div>
-</div>
+</article>
