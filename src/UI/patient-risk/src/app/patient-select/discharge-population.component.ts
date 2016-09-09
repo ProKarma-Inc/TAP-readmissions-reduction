@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, Renderer } from '@angular/core';
 import { PatientService } from '../services';
 import { Patient } from '../models/patient';
 import { ROUTER_DIRECTIVES, Router } from '@angular/router';
+import { ReAdmission30dayRatesComponent } from '../re-admission-30day-rates'
 import { RiskLegendComponent } from '../risk-legend';
 
 @Component({
@@ -9,7 +10,7 @@ import { RiskLegendComponent } from '../risk-legend';
   selector: 'pk-discharge-population',
   templateUrl: 'discharge-population.component.html',
   styleUrls: ['discharge-population.css'],
-  directives: [RiskLegendComponent],
+  directives: [ReAdmission30dayRatesComponent, RiskLegendComponent],
   providers: [PatientService, ROUTER_DIRECTIVES]
 })
 export class DischargePopulationComponent implements OnInit{
