@@ -13,7 +13,7 @@ export class AgeDistribution{
     let currentUpper = (currentLower + this.ageGroupRange);
 
     for(let i = 0; i < this.numberOfColumns(); i++){
-      buckets.push(sortedAges.filter(age => age >= currentLower && age <= currentUpper));
+      buckets.push(sortedAges.filter(age => age >= currentLower && age < currentUpper));
       currentLower = currentUpper;
       currentUpper = (currentLower + this.ageGroupRange);
     }
@@ -27,7 +27,7 @@ export class AgeDistribution{
     console.log(currentLower);
     for(let i = 0; i < this.numberOfColumns(); i++){
         let newLower = (currentLower + this.ageGroupRange);
-        let label = currentLower + ' - ' + newLower;
+        let label = currentLower + ' - &lt;' + newLower;
         labels.push(label);
         currentLower = newLower;
     }
