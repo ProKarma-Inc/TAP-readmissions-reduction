@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PatientService } from '../services';
+import { PatientService, ReAdmissionService } from '../services';
 import { Patient } from "../models/patient";
 import { Router, ActivatedRoute } from '@angular/router';
 import { CHART_DIRECTIVES } from 'angular2-highcharts';
@@ -12,7 +12,7 @@ import {AgeDistribution} from "../models/ageDistribution";
   selector: 'pk-readmission-risk-results',
   templateUrl: 'readmission-risk-results.component.html',
   styleUrls: ['readmission-risk-results.css'],
-  providers: [PatientService],
+  providers: [PatientService, ReAdmissionService],
   directives: [RiskLegendComponent, CHART_DIRECTIVES]
 })
 export class ReadmissionRiskResultsComponent implements OnInit {
@@ -25,7 +25,8 @@ export class ReadmissionRiskResultsComponent implements OnInit {
   private marker: string;
   private comorbidsLabels: Array<string>;
 
-  constructor(private patientService: PatientService, private router: Router, private activatedRouter: ActivatedRoute) {
+  constructor(private patientService: PatientService, private readmissionService: ReAdmissionService,
+              private router: Router, private activatedRouter: ActivatedRoute) {
        this.admissionId = this.activatedRouter.snapshot.params['admissionId'];
        this.marker = 'url(/app/readmission-risk-results/marker.png)';
        this.comorbidsLabels = ['&lt;1.0', '1.0 - &lt;2.0', '2.0 - &lt;3.0', '3.0 - &lt;=4.0'];
@@ -37,7 +38,7 @@ export class ReadmissionRiskResultsComponent implements OnInit {
           patients => {
               this.patient = patients.find(patient => patient.hadm_id == this.admissionId);
 
-              this.patientService.getReferenceData(this.patient.age)
+              this.readmissionService.getReferenceData(this.patient.age)
                 .subscribe(
                   referenceData =>{
                     this.severityChart(referenceData.comorbidSeverities);
@@ -136,7 +137,7 @@ export class ReadmissionRiskResultsComponent implements OnInit {
     let bucketLabels: Array<string> = ages.generateColumns();
     let ageBuckets: Array<Array<number>> = ages.generateAgeBuckets();
     let ageData: Array<any> = [];
-    
+
     for(let i = 0; i < ageBuckets.length; i++){
       if(ageBuckets[i].indexOf(this.patient.age) === -1) {
         ageData.push({y: ageBuckets[i].length, marker: {symbol: 'circle'}});

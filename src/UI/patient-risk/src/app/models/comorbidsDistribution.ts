@@ -2,10 +2,10 @@
  * Created by prokarma on 8/30/2016.
  */
 export class ComorbidsDistribution {
-  One: Array<number>;
-  Two: Array<number>;
-  Three: Array<number>;
-  Four: Array<number>;
+  public One: Array<number>;
+  public Two: Array<number>;
+  public Three: Array<number>;
+  public Four: Array<number>;
 
   constructor(){
     this.One = [];

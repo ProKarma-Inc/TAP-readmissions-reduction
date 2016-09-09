@@ -5,3 +5,4 @@ export { Patient } from './patient';
 export { ComorbidsDistribution } from './comorbidsDistribution';
 export { AgeDistribution } from './ageDistribution';
 export { ReferenceData } from './reference-data';
+export { ReAdmissionData } from './readmission-data';
