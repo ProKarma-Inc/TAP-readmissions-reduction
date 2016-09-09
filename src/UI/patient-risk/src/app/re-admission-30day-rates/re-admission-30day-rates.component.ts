@@ -28,6 +28,7 @@ export class ReAdmission30dayRatesComponent implements OnInit{
 
 
 
+  private severityChart(comorbindsSeverities: {}) {
     let severityData: Array<any> = [
       {y: comorbindsSeverities.One.length, marker: {symbol: 'circle'}},
       {y: comorbindsSeverities.Two.length, marker: {symbol: 'circle'}},
