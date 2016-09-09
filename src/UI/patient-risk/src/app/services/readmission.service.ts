@@ -45,15 +45,10 @@ export class ReAdmissionService {
 }
 
 function mapReAdmissionData(response: Response): ReAdmissionData{
-  let reAdmissionData = response.json().map(toReAdmissionData);
-  console.log(reAdmissionData);
-  return reAdmissionData;
-}
-
-function toReAdmissionData(response: any): ReAdmissionData{
+  let jsonResponse = response.json();
   let reAdmissionData = <ReAdmissionData>({
-    dates: response.dates,
-    readmissionRates: response.readmissionRates
+    dates: jsonResponse.dates,
+    readmissionRates: jsonResponse.readmissionDates
   });
   return reAdmissionData;
 }
