@@ -57,7 +57,7 @@ export class ReAdmission30dayRatesComponent implements OnInit{
     }
     this.readmissionRatesOptions = {
       chart: this.chartSizeAndType,
-      title: {text: null},
+      title: {text: '30-Day Re-Admission Rate'},
       legend: {enabled: false},
       xAxis: {
         title: {text: 'Range'},
