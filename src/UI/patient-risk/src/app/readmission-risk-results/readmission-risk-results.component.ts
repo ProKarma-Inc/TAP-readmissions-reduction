@@ -23,13 +23,23 @@ export class ReadmissionRiskResultsComponent implements OnInit {
   private comorbidSeverityOptions: HighchartsOptions;
   private ageOptions: HighchartsOptions;
   private marker: string;
+  private infoIcon: string;
   private comorbidsLabels: Array<string>;
+
+  private severityToolTip: string;
+  private mortalityToolTip: string;
+  private ageToolTip: string;
 
   constructor(private patientService: PatientService, private readmissionService: ReAdmissionService,
               private router: Router, private activatedRouter: ActivatedRoute) {
        this.admissionId = this.activatedRouter.snapshot.params['admissionId'];
        this.marker = 'url(/app/readmission-risk-results/marker.png)';
+       this.infoIcon = '/app/readmission-risk-results/info16.png';
        this.comorbidsLabels = ['&lt;1.0', '1.0 - &lt;2.0', '2.0 - &lt;3.0', '3.0 - &lt;=4.0'];
+
+       this.severityToolTip = 'The extent of physiologic decomposition or organ system loss of function';
+       this.mortalityToolTip = 'The likelihood of dying';
+       this.ageToolTip = 'Age compared to the population';
   };
 
     ngOnInit() {
@@ -77,7 +87,7 @@ export class ReadmissionRiskResultsComponent implements OnInit {
 
     this.comorbidSeverityOptions = {
       chart: {type: 'spline', width: 580, height: 230},
-      title: {text: null},
+      title: {text: 'Distribution of Illness Severity for Reference Population'},
       legend: {enabled: false},
       xAxis: {
         title: {text: 'Range'},
@@ -115,7 +125,7 @@ export class ReadmissionRiskResultsComponent implements OnInit {
 
     this.comorbidMortalityOptions = {
       chart: { type: 'spline', width: 580, height: 230 },
-      title: { text : null },
+      title: { text : 'Distribution of Mortality Risk for Reference Population' },
       legend: { enabled: false },
       xAxis: {
         title: { text: 'Range'},
@@ -148,7 +158,7 @@ export class ReadmissionRiskResultsComponent implements OnInit {
 
     this.ageOptions = {
       chart: { type: 'spline', width: 580, height: 230 },
-      title: { text : null },
+      title: { text : 'Distribution of Age for Reference Population' },
       legend: { enabled: false },
       xAxis: {
         title: { text: 'Range'},

@@ -4,15 +4,15 @@
       <div class="col-md-6 col-md-offset-1 verticalLine">
         <chart [options]="comorbidSeverityOptions"> </chart>
         <br />
-        <div class="graphcaption"><strong>Severity of Illness:</strong> {{patient != null ? patient?.comorbid_severity?.toFixed(2) : 0}}</div>
+        <div class="graphcaption"><strong>Patient’s Severity of Illness:</strong> {{patient != null ? patient?.comorbid_severity?.toFixed(2) : 0}} <a href="#" title="{{severityToolTip}}"><img [attr.src]="infoIcon" /></a></div>
         <br />
         <chart [options]="comorbidMortalityOptions"> </chart>
         <br />
-        <div class="graphcaption"><strong>Risk of Mortality:</strong> {{patient != null ? patient?.comorbid_mortality?.toFixed(2) : 0}}</div>
+        <div class="graphcaption"><strong>Patient’s Risk of Mortality:</strong> {{patient != null ? patient?.comorbid_mortality?.toFixed(2) : 0}} <a href="#" title="{{mortalityToolTip}}"><img [attr.src]="infoIcon" /></a></div>
         <br />
         <chart [options]="ageOptions"> </chart>
         <br />
-        <div class="graphcaption"><strong>Age:</strong> {{patient?.age}}</div>
+        <div class="graphcaption"><strong>Age:</strong> {{patient?.age}} <a href="#" title="{{ageToolTip}}"><img [attr.src]="infoIcon" /></a></div>
       </div>
       <div class="col-md-3 col-md-offset-1">
 

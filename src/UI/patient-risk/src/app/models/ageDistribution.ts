@@ -24,7 +24,6 @@ export class AgeDistribution{
     let labels: Array<string> = [];
 
     let currentLower = this.lowerLimit();
-    console.log(currentLower);
     for(let i = 0; i < this.numberOfColumns(); i++){
         let newLower = (currentLower + this.ageGroupRange);
         let label = currentLower + ' - &lt;' + newLower;
