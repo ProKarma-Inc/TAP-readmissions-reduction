@@ -47,8 +47,7 @@ export class ReAdmission30dayRatesComponent implements OnInit{
   public navigateToReadmissionRiskChart(){
     this.router.navigate(['/readmissionRates', 'fullSize']);
   }
-
-
+  
   private readmissionRatesChart() {
 
     let xAxisTitles: Array<string> = [];
@@ -60,7 +59,7 @@ export class ReAdmission30dayRatesComponent implements OnInit{
       title: {text: '30-Day Re-Admission Rate'},
       legend: {enabled: false},
       xAxis: {
-        title: {text: 'Range'},
+        title: {text: 'Dates'},
         categories: xAxisTitles
       },
       yAxis: {
@@ -68,7 +67,7 @@ export class ReAdmission30dayRatesComponent implements OnInit{
       },
       series: [
         {
-          name: 'Dates',
+          name: 'Rates',
           data: this.reAdmissionData.readmissionRates
         }]
     }
