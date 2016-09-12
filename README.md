@@ -11,7 +11,7 @@ The prevalence of large patient datasets and the computational resources now ava
 
   *	**Solution Overview**: TAP packages standard Open Source tools (e.g. Cloudera Hadoop, Docker, and Cloud Foundry) to create an integrated platform to quickly develop predictive models from large datasets and then deploy those models for use in applications.
   *	**Reference Architecture**: Data sources can be combined to train a predictive model with high accuracy on assessing likelihood of patient readmission. That model can be deployed as a service so that it’s predictions can be consumed by other applications (see figure 1).
-  *	**Reference Implementation**: We have created a specific implementation of the Reference Architecture using the open source MIMIC-III medical dataset, complete with detailed explanations, walkthrough and code available at https://github.com/MichaelAHood/readmissions-risk-scorer/blob/master/data-science-on-TAP.md
+  *	**Reference Implementation**: We have created a specific implementation of the Reference Architecture using the open source MIMIC-III medical dataset, complete with detailed explanations, walkthrough and code available [here] [https://github.com/ProKarma-Inc/TAP-readmissions-reduction/blob/master/data-science-on-TAP.md]
   *	**Adoption Plan for Your Own Implementation**: The last step is a discussion of how a specific hospital can use the Reference Architecture to create their own implementation with their own data and existing applications. 
   * **Reducing Readmissions Case Study**: In conclusion, there is a case study that discusses how Intel helped a large hospital group successfully implement a readmissions reduction program using big data and machine learning.
 
