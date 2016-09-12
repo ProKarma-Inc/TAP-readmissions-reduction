@@ -1,4 +1,5 @@
 Flask
+pandas
 numpy
 requests
 pymongo

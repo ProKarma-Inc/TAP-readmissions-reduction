@@ -18,9 +18,9 @@ port = int(os.getenv('VCAP_APP_PORT', 8080))
 # These are the MongoDB api endpoints for the application.
 # These urls are needed to work with the parse_records script.
 
-admissionsURL = "http://patient-risk-api.52.204.218.231.nip.io/api/discharge-admissions"
-comorbidsURL = "http://patient-risk-api.52.204.218.231.nip.io/api/discharge-comorbids"
-patientsURL = "http://patient-risk-api.52.204.218.231.nip.io/api/discharge-patients"
+admissionsURL = "discharge-admissions.psv"
+comorbidsURL = "discharge-comorbids.psv"
+patientsURL = "discharge-patients.psv"
 urls = [admissionsURL, comorbidsURL, patientsURL]
 
 riskScorerAPI = 'http://risk-scorer-jb.52.204.218.231.nip.io/v1/score-patients?admissionIDs={0}'

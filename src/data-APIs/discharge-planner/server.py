@@ -2,6 +2,7 @@
 from flask import Flask, json, request, Response
 from pymongo import MongoClient
 import requests
+import pandas as pd
 import numpy as np
 from datetime import datetime
 import os
@@ -23,18 +24,18 @@ MONGODB_URI = os.getenv("['VCAP_SERVICES']['mongodb30'][0]['credentials']['uri']
 client = MongoClient(MONGODB_URI)
 db = client.get_default_database()
 # Switch context to 'processedpatients'
-processedPatientsPointer = db['processedpatients']
+processedPatientsPointer = db['dischargepatients']
 # Get all hospital admission IDs
-dischargedPatientsPointer = db['dischargeadmissions']
-allIDs = [doc['hadm_id'] for doc in dischargedPatientsPointer.find()]
+allIDs = pd.read_csv('data/admission-ids.csv').HADM_ID.values
 # Get the RECORD_GETTER_URL from the environment variable VCAP_SERVICES
 RECORD_GETTER_URL = os.getenv("['VCAP_SERVICES']['app1'][0]['credentials']['uri']", 
                               "http://record-getter.52.204.218.231.nip.io")
 
 # Define a helper to convert the datetime string to a python datetime object
 def to_datetime(dtString):
-    dt = dtString.replace('T', ' ').replace('Z', '')
-    return datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f")
+    if '/'not in dtString:
+        return datetime.strptime(dtString, "%Y-%m-%d %H:%M:%S.%f")
+    return datetime.strptime(dtString, "%m/%d/%Y %I:%M:%S %p")
 
 ########################################################################################################################
 # Routes
@@ -49,12 +50,13 @@ def root():
 @app.route('/v1/send-records-to-mongo', methods=['GET'])
 def parse_qs():
     # Take a random selection of 100 patients for discharge
-    dischargeIDs = list(np.random.choice(np.array(allIDs), 100))
+    dischargeIDs = np.random.choice(allIDs, 100).tolist()
+    print dischargeIDs
     apiURL = '{0}/v1/get-records?admissionIDs={1}'.format(RECORD_GETTER_URL, dischargeIDs)
     content = requests.get(apiURL).content
     docs = json.loads(content)['documents']
     for doc in docs:
-        for time in ['admittime', 'dischtime', 'dob']:
+        for time in ['ADMITTIME', 'DISCHTIME', 'DOB']:
             doc['patientInfo'][time] = to_datetime(doc['patientInfo'][time])
     # Dump the pre-existing Mongo collection
     processedPatientsPointer.remove()
