@@ -67,6 +67,10 @@ export class DischargePopulationComponent implements OnInit{
   }
 
   public goToDetails(patient: Patient){
+      if(patient === undefined || patient === null){
+        alert('Patient data is unavailable.');
+        return;
+      }
       this.router.navigate(['/details', patient.hadm_id]);
   }
 

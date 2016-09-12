@@ -11,9 +11,9 @@ export class PatientService {
     this.basePatientUri = 'http://patient-risk-api.52.204.218.231.nip.io/api/';
   }
 
-  getAllPatients(): Observable<Array<Patient>>{
+  public getAllPatients(): Observable<Array<Patient>>{
     let patients$ = this.http
-      .get(`${this.basePatientUri + 'processed-patients'}`, {headers: this.getHeaders()})
+      .get(`${this.basePatientUri + 'discharge-patients'}`, {headers: this.getHeaders()})
       .map(mapPatients)
       .catch(handleError);
     return patients$;
@@ -26,8 +26,8 @@ export class PatientService {
   }
 }
 
-function mapPatients(response: Response): Patient[]{
-  let patients = response.json().processedPatients.map(toPatient);
+function mapPatients(response: Response): Array<Patient>{
+  let patients = response.json().dischargePatients.map(toPatient);
   //console.log(patients);
   return patients;
 }
@@ -46,21 +46,21 @@ function toPatient(response: any): Patient{
   }
 
    let patient = <Patient>({
-    subject_id: response.subject_id,
-    hadm_id: response.hadm_id,
-    admission_type: response.admission_type,
-    diagnosis: response.diagnosis,
-    ethnicity: response.ethnicity,
-    insurance: response.insurance,
-    language: response.language,
-    marital_status: response.marital_status,
-    comorbid_severity: response.comorbid_severity,
-    comorbid_mortality: response.comorbid_mortality,
-    age: response.age,
-    gender: response.gender,
-    admittime: response.admittime,
-    dischtime: response.dischtime,
-    dob: response.dob,
+    subject_id: response.SUBJECT_ID,
+    hadm_id: response.HADM_ID,
+    admission_type: response.ADMISSION_TYPE,
+    diagnosis: response.DIAGNOSIS,
+    ethnicity: response.ETHNICITY,
+    insurance: response.INSURANCE,
+    language: response.LANGUAGE,
+    marital_status: response.MARITAL_STATUS,
+    comorbid_severity: response.COMORBID_SEVERITY,
+    comorbid_mortality: response.COMORBID_MORTALITY,
+    age: response.AGE,
+    gender: response.GENDER,
+    admittime: response.ADMITTIME,
+    dischtime: response.DISCHTIME,
+    dob: response.DOB,
     readmissionRisk: response.readmissionRisk,
     readmissionRiskScoreColor: riskScoreColor,
     readmissionRiskScoreAsPercent: Math.ceil(response.readmissionRisk * 100) + '%'

@@ -5,7 +5,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var processedPatientSchema = new Schema({
+var dischargePatientSchema = new Schema({
     subject_id: Number,
     hadm_id: Number,
     diagnosis: String,
@@ -24,4 +24,4 @@ var processedPatientSchema = new Schema({
     riskScore: Number
 });
 
-module.exports = mongoose.model('ProcessedPatients', processedPatientSchema);
+module.exports = mongoose.model('DischargePatients', dischargePatientSchema);
