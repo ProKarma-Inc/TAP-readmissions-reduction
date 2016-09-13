@@ -41,46 +41,64 @@ The reference implementation (Figure 2) utilizes the core TAP technologies, e.g.
 ![Solution Architecture](images/architecture-diagram-1.png)
 Figure 2: Logical relationship and key technologies used in this reference implementation.
 
-## 5. Adoption Roadmap – Creating Your Own Implementation
+## 5. Adoption Roadmap – Creating a New Implementation
 
-This adoption roadmap frames the discussion for understanding how creating your own implementation of the Reference Architecture differs from the specifics of the Reference Implementation in Section 4.
+This adoption roadmap outlines how creating a unique implementation of the reference architecture differs from the specifics of the reference implementation in Section 4.
 
-This adoption roadmap for this solution consists of five essential steps:
+The adoption roadmap for this solution consists of five essential steps:
 
-1. Identifying your organization’s relevant data and load it into the TAP cluster.
-2. Explore, process, and engineer features for use in predictive modeling.
-3. Pick a performance criteria and train a predictive model accordingly.
-4. Deploy the predictive model as an API that can be used by another application.
-5. Build an application that incorporates the model predictions into your workflow.
+ 1. Identify the organization’s relevant data and load it into the TAP cluster.
+ 2. Explore, process and engineer features for use in predictive modeling.
+ 3. Pick performance criteria and train a predictive model accordingly.
+ 4. Deploy the predictive model as an API that can be used by another application.
+ 5. Build an application that incorporates the model predictions into the workflow.
 
-**1. Identifying your organization’s relevant data and load it into the TAP cluster.** At a minimum, the hospitals admission records are required to identify which patients were readmitted within a given time frame. Other sources of data, such as demographic information, electronic chart data, and comorbidity records, can further enrich the patient readmission data, boosting model performance. Choosing what data to incorporate into a model can be as much a creative effort as it is an investigative one, and should be treated as an iterative development process. Subject Matter Experts (SMEs), IT professionals, and Data Scientists should be involved in this initial phase. Data can be loaded and stored in TAP in many forms that lend themselves to the individual preferences and needs of an IT and Analytics team. CSV files and Hive tables are two storage formats that facilitate using big data tools, such as Apache Spark.
+**1. Identify the organization’s relevant data and load it into the TAP cluster.** 
+At a minimum, a hospital’s admission records are required to identify which patients were readmitted within a given time frame. Other sources of data, such as demographic information, electronic chart data and comorbidity records, can further enrich the patient readmission data, boosting model performance. Choosing which data to incorporate into a model can be as much a creative effort as it is an investigative one, and should be treated as an iterative development process. Subject matter experts (SMEs), IT professionals and data scientists should be involved in this initial phase. Data can be loaded and stored in TAP in many forms that lend themselves to the individual preferences and needs of an IT and analytics team. CSV files and Hive tables are two storage formats that facilitate using big data tools, such as Apache Spark.
 
-**2. Explore, process, and engineer features for use in predictive modeling.** This step involves creating the data pipeline that takes the data – from the source defined in the previous step – and prepares it for modeling. This step includes conducting Exploratory Data Analysis (EDA) to learn the structure of the data, cleaning any dirty or missing data, and identifying what data fields will be useful for modeling. A significant effort in this step is feature engineering, that is the creation of new data features from pre-existing ones. Feature Engineering is best done when SMEs, IT professionals, and data scientists come together to brainstorm and discuss novel ideas and courses of action. In most cases, socioeconomic, demographic data, and low-dimensional features, such as height, weight, and age contain the majority of the predictive signal.
+**2. Explore, process, and engineer features for use in predictive modeling.** This step involves creating the data pipeline that takes the data from its original source and prepares it for modeling. This step includes conducting exploratory data analysis (EDA) to learn the structure of the data, cleaning any dirty or missing data and identifying what data fields will be useful for modeling. A significant effort in this step is feature engineering – the creation of new data features from pre-existing ones. Feature engineering is best done when SMEs, IT professionals and data scientists come together to brainstorm and discuss novel ideas and courses of action. In most cases, socioeconomic, demographic data and low-dimensional features, such as height, weight and age contain the majority of the predictive signal.
 
-**3. Pick a performance criteria and train a predictive model accordingly.** This step entails considering the practical details of what a model is doing. No model is perfect and this fact requires that tradeoffs must be made since some patients will be incorrectly flagged by the model and other high-risk patients will be missed entirely. Therefore, an analysis must be done that considers the cost of false positives and false negatives – administering unnecessary medical care or missing a high-risk patient – and the benefit of true positives – reducing readmissions. The stakeholders in this discussion are the healthcare professionals, operations planning staff, and data scientists. With appropriate performance criteria the data scientist can train and validate a model according to the specified criteria. In our experience, the area under the Receiver Operating Characteristic curve (AUC-ROC) is best suited for delivering optimal results on this particular problem.
+**3. Pick a performance criteria and train a predictive model accordingly.** No model is perfect and tradeoffs must be made since some patients will be incorrectly flagged by the model and other high-risk patients will be missed entirely. Therefore, an analysis must be done that considers the cost of false positives and false negatives – administering unnecessary medical care or missing a high-risk patient – and the benefit of true positives, reducing readmissions. The stakeholders in this discussion are the healthcare professionals, operations planning staff and data scientists. With appropriate performance criteria the data scientist can train and validate a model according to the specified criteria. The area under the receiver operating characteristic curve (AUC-ROC) is best suited for delivering optimal results on this particular problem.
 
-**4. Deploy the predictive model as an API that can be used by another application.** Once a model has been created it must be deployed in a format that enables other applications to consume the predictions it makes. From a development and integration standpoint the simplest way to do this is to package the model as a service where it can be called like a REST API. Creating the model as a service gives application developers tremendous flexibility in how they choose to utilize the model – allowing them to only worry about the input and output of the model and ignore the internal details of how the model works.
+**4. Deploy the predictive model as an API that can be used by another application.** Once a model has been created it must be deployed in a format that enables other applications to consume the predictions. From a development and integration standpoint, the simplest way to do this is to package the model as a service where it can be called like a REST API. Creating the model as a service gives application developers tremendous flexibility in how they choose to utilize the model, allowing them to only worry about the input and output of the model and ignore the internal details of how the model works.
 
-**5. Build an application that incorporates the model predictions into your workflow.** With the model available as a service, it is necessary to incorporate the prediction results into an existing workflow to give medical practitioners a way to utilize the model's predictions. Since the output of a model is just a number representing a risk score for readmission, this reference architecture builds a lightweight app that allows visualizations of the predictions and patient data. It is often helpful to provide contextual data to go with a given prediction so hospital staff can view the model's prediction within the broader context of the overall population. However, with the model as a service it is modular and flexible enough to incorporate into different applications as needed to fit an organization’s requirements.
+**5. Build an application that incorporates the model predictions into your workflow.** With the model available as a service, it is necessary to incorporate the prediction results into an existing workflow to give medical practitioners a way to easily use the model's predictions. Since the output of a model is just a number representing a risk score for readmission, this reference architecture builds a lightweight app that allows visualizations of the predictions and patient data. It is often helpful to provide contextual data to go with a given prediction so hospital staff can view the model's prediction within the broader context of the overall population. The model-as-a-service approach is modular and flexible enough to incorporate into different applications as needed to fit an organization’s requirements.
 
 ## 6. Solution Background – A Case Study in Reducing Readmissions
 
-This Reference Architecture originated through Intel's partnership with Cloudera to conduct a pilot program with a Large Hospital Group to use predictive analytics to reduce readmission rates. 
+This reference architecture was inspired by a pilot program implemented by Intel and Cloudera. The program set out to use predictive analytics to reduce readmission rates within a large hospital group.
 
-Intel Data Scientists took historical patient data and combined it with socioeconomic data, such as housing prices and health services in the surrounding area. With this enriched dataset they trained a Random Forest predictive model that enabled doctors to pinpoint which patients were a high readmission risk. Hospital staff were able to administer additional care to identify any shortcomings in the treatment and discharge plan, thereby reducing overall readmission rates.
+Intel data scientists took historical patient data and combined it with socioeconomic data, such as housing prices and health services, in the surrounding area. With this enriched dataset they trained a random forest predictive model that enabled doctors to pinpoint which patients were a high readmission risk. With this information, hospital staff administered additional care to identify any shortcomings in the treatment and discharge plan, thereby reducing overall readmission rates.
 
-By Using the predictions from the analysis, the Hospital Group was able to reap the following benefits:
+By using the predictions from the analysis, the hospital group received the following benefits:
 
-  1. Reducing 6,000 occurrences of patient readmission.
-  2. Avoiding $4 million in potential Medicare penalties.
-  3. Saving approximately $72 million in medical costs.
-  4. Improving hospital ratings by lowering readmission rate and increasing patient satisfaction.
-  5. More efficient utilization of resources by focusing at high-risk patients.
+  1. Reduced 6,000 occurrences of patient readmission.
+  2. Avoided $4 million in potential Medicare penalties.
+  3. Saved approximately $72 million in medical costs.
+  4. Improved hospital ratings by lowering readmission rate and increasing patient satisfaction.
+  5. Achieved more efficient utilization of resources by focusing on high-risk patients.
 
-One of the unintended benefits of implementing this solution was more efficient utilization of resources. Specifically, the increased quality of care provided to the identified high-risk patients during their initial visit freed up resources that enabled the Hospital Group to help an additional 300 - 500% more patients.
+One of the unintended benefits of implementing this solution was more efficient utilization of resources. Specifically, the increased quality of care provided to the identified high-risk patients during their initial visit freed up resources that enabled the hospital group to help an increase of 300-500 percent of patients.
+
+Implementing the reference architecture on TAP allows the solution to be quickly developed and customized for an individual hospital or healthcare organization. The implementation of the model as a RESTful service allows it to be easily consumed by any third party applications.
 
 ## Conclusion:
 
-We have provided a Reference Implementation as a blueprint that enables any hospital organization to use TAP to quickly adopt the above described solution, and begin reaping the same benefits.
+This reference implementation serves as a blueprint for any healthcare organization to use TAP to quickly adopt the above-described solution, and begin reaping the same benefits.
 
-For more information about using Intel TAP in your own organization, please contact: Michael.j.demshki@intel.com
+For more information about using Intel TAP in your own organization, please contact: 
+
+Michael Hood		
+Lead Data Scientist
+Analytics Group, ProKarma	
+mhood@prokarma.com	
+
+Tipton Loo		
+VP Analytics
+Analytics Group, ProKarma
+tloo@prokarma.com
+
+Julie Maas		
+Business Development Manager
+Analytics Solutions Group, Intel
+Julie.maas@intel.com
