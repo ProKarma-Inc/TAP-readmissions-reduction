@@ -88,17 +88,7 @@ This reference implementation serves as a blueprint for any healthcare organizat
 
 For more information about using Intel TAP in your own organization, please contact: 
 
-Michael Hood		
-Lead Data Scientist
-Analytics Group, ProKarma	
-mhood@prokarma.com	
-
-Tipton Loo		
-VP Analytics
-Analytics Group, ProKarma
-tloo@prokarma.com
-
-Julie Maas		
-Business Development Manager
-Analytics Solutions Group, Intel
-Julie.maas@intel.com
+Michael Hood		                    Tipton Loo                         Julie Maas
+Lead Data Scientist               VP Analytics                       Business Development Manager
+Analytics Group, ProKarma	        Analytics Group, ProKarma          Analytics Solutions Group, Intel
+mhood@prokarma.com	               tloo@prokarma.com                  Julie.maas@intel.com
