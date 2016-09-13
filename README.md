@@ -20,23 +20,23 @@ Figure 1: Reference Architecture for creation and deployment of a predictive mod
 
 ## 3. How to Use the Reference Architecture
 
-Figure 1 demonstrates the Reference Architecture in which patient Electronic Medical Record (EMR) data can be combined with multiple data sources, such as census data, and socio-economic data to form a rich picture of a patient. With the right data, data scientists can create predictive models that learn the relationships between patient data and their propensity for different conditions, e.g. heart disease or risk of early readmission.
-
-The Reference Architecture is meant to be customized to a specific hospital – creating a unique implementation. For this reason, we have created a Reference Implementation (see section 4 and the GitHub repo) complete with downloadable code and detailed documentation. Specific discussion and considerations for a hospital’s own implementation can be found in Section 5.
-
-In general, once a predictive model has been created and validated, it can be deployed as a cloud-based service that allows the model's predictions to be consumed by other applications. For example, discharge planning software can pass a list of patient IDs to the model and receive a score that indicates the readmission risk for each patient. Once high-risk patients have been identified, their EMRs and discharge plans can be evaluated to address any appropriate risk factors. In this way, the model serves as a cognitive aid to assist hospital staff in identifying high-risk patients who may have gone unnoticed.
-
+Figure 1 illustrates the reference architecture that uses a predictive modeling process where patient electronic medical record (EMR) data is combined with multiple data sources, such as census and socio-economic data, to form a rich picture of a patient. With the right inputs, data scientists can create predictive models that learn the relationships between patient data and their propensity for different conditions, e.g. heart disease or risk of early readmission.
+ 
+The reference architecture is meant to be customized to a specific hospital, creating a unique implementation. The reference implementation (see Section 4 and the GitHub repository listed) includes downloadable code and detailed documentation. Specific discussion and considerations for a hospital’s individual implementation can be found in Section 5. 
+ 
+In general, once a predictive model has been created and validated, it can be deployed as a cloud-based service that allows the model's predictions to be consumed by other applications. For example, discharge planning software can pass a list of patient IDs to the model and receive a score that indicates the readmission risk for each patient. Once high-risk patients have been identified, their EMRs and discharge plans can be evaluated to address any appropriate risk factors. The model serves as a cognitive aid to assist hospital staff in identifying high-risk patients who may have otherwise gone unnoticed.
 
 ## 4. What the Solution Contains – The Reference Implementation
 
-The Reference Implementation (see Figure 2) utilizes the core TAP technologies, e.g. Cloudera Hadoop (CDH), Docker, and Cloud Foundry in the following ways:
+The reference implementation (Figure 2) utilizes the core TAP technologies, e.g. Cloudera Hadoop (CDH), Apache Spark, Jupyter Notebook, Docker and Cloud Foundry in the following process:
 
- *	Historical data and patient records are stored in the CDH cluster.
- *	Jupyter notebooks are created in Docker containers enabling data scientists to conduct collaborative and reproducible analysis.
- *	Apache Spark -- the big data computing engine -- is utilized on the CDH cluster to analyze large distributed datasets.
- *	Apache Spark’s Machine Learning Library is used to train and validate the predictive model.
- *	Cloud Foundry is used to package the predictive model and deploy it in the TAP cloud as an API service.
- *	Cloud Foundry is also used to create an application that depicts prediction results in a visual manner to facilitate comprehension by medical staff.
+ 1. Historical data and patient records are stored in the CDH cluster.
+ 2. Jupyter notebooks are created in Docker containers which enables data scientists to conduct collaborative and reproducible analysis.
+ 3. Apache Spark — the big data computing engine — is utilized on the CDH cluster to analyze large distributed datasets.
+ 4. Apache Spark’s Machine Learning Library is used to train and validate the predictive model.
+ 5. Cloud Foundry is used to package the predictive model and deploy it in the TAP cloud as an API service.
+ 6. Cloud Foundry is also used to create an application that displays prediction results in a visual manner to facilitate comprehension by medical staff.
+
 
 ![Solution Architecture](images/architecture-diagram-1.png)
 Figure 2: Logical relationship and key technologies used in this reference implementation.
