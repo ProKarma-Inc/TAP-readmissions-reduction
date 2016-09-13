@@ -38,8 +38,6 @@ The Reference Implementation (see Figure 2) utilizes the core TAP technologies, 
  *	Cloud Foundry is used to package the predictive model and deploy it in the TAP cloud as an API service.
  *	Cloud Foundry is also used to create an application that depicts prediction results in a visual manner to facilitate comprehension by medical staff.
 
-See https://github.com/MichaelAHood/readmissions-risk-scorer for more details.
-
 ![Solution Architecture](images/architecture-diagram-1.png)
 Figure 2: Logical relationship and key technologies used in this reference implementation.
 
