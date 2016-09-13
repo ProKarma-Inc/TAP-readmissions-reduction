@@ -517,7 +517,7 @@ Finally, we save the data.
 ```python
 adults, holdout = labeledData.randomSplit([0.9, 0.1])
 
-# There is a known bug in Spatk 1.5 that causes writing DataFrames to CSV to fail when Tungsten is enabled.
+# There is a known bug in Spark 1.5 that causes writing DataFrames to CSV to fail when Tungsten is enabled.
 sqlContext.setConf("spark.sql.tungsten.enabled", "false")
 
 adults.coalesce(1).write.format("com.databricks.spark.csv").\
@@ -566,7 +566,7 @@ We have 25056 training instances and 2830 holdout instances.
 """
 ```
 
-In this case, `AVG_DRG_SEVERITY` and `AVG_DRG_MORTALITY` have been read in as strings instead of doubles. This will need to be corrected before we do any modeling. You never know and should always check 
+In this case, `AVG_DRG_SEVERITY` and `AVG_DRG_MORTALITY` have been read in as strings instead of doubles. This will need to be corrected before we do any modeling. You never know and should always check if `null` values are present.  
 
 ```python
 # We will cast these string variables as double types
@@ -574,7 +574,7 @@ intermediateDF = df_adults.withColumn("AVG_SEVERITY", df_adults.AVG_DRG_SEVERITY
 adults = intermediateDF.withColumn("AVG_MORTALITY", intermediateDF.AVG_DRG_MORTALITY.cast(DoubleType()))
 ```
 
-We handled any missing values earlier, so the next step just a pre-modleing check. Most algorithms do not handle missing data and will throw an exception -- requireing you to replace those missing values witt something. 
+We handled the only missing values earlier, so the next step just a pre-modleing check that is good practice. Most algorithms do not handle missing data and will throw an exception -- requireing you to replace those missing values with something. 
 
 
 ```python
@@ -583,18 +583,18 @@ for col in df_adults.columns:
     if df_adults.where(df_adults[col].isNull()).count() > 0:
         print col
 ```
-There is an entire sub-field of data analysis devoted to imputation of missing data, however, three common methods for imputing missing values are using the mean or median value of a column, replacing it with zero, or dropping it entirely. You can also perform tests to see if the missing values are missing at random or if there is a statisitcally significant number of missing values -- thereby necessitating a prudent imputation stratedgy, e.g. mean, meadian, or fitting a model that can identify a pattern from the other data fields to try and learn what is likely to be in a good value for the missing fields.  
+There is an entire sub-field of data analysis devoted to imputation of missing data, however, three common methods for imputing missing values are using the mean or median value of a column, replacing it with zero, or dropping it entirely. You can also perform tests to see if the missing values are missing at random or if there is a statisitcally significant number of missing values -- thereby necessitating a prudent imputation strategy, e.g. mean, median, or fitting a model that can identify a pattern from the other data fields to try and learn what is likely to be a good value for the missing fields.  
 
 The last step we want to take before starting the modeling process is to encode categorical variables. Many classifiers can handle cariables that are categorical as well as continuous. An example of a categorical variables is `GENDER` which -- in this dataset -- can only take the values of `M` or `F`. An example of a continuous variable is `AGE` which can take any value greater than 0. To encode `GENDER`, `M` can be represented by a `0` and `F` can be represented by a `1`. 
 
-PySpark has a built-in feature called `StringIndexer` that can be very useful for this purpose. The `StringIndexer` will take as input a column of string valued rows and replace them with numerical values, e.g. all instances `Cat` are replaced with a `0.0` and `Dog` with a `1.0`.
+PySpark has a built-in feature called `StringIndexer` that can be very useful for this purpose. The `StringIndexer` will take as input a column of string valued rows and replace them with numerical values, e.g. all instances of `Cat` are replaced with a `0.0` and `Dog` with a `1.0`.
 
-I am choosing to not use this feature because `StringIndexer` will repalce the most frequently encounter value with `0.0` and the next most frequent value with `1.0`, and so on. Since some of my categorical features are very uncommon, they may end up being represented differently between different training and testing splits during cross validation. To ensure consistency in how categorical values are encoded, I will manually manually specify the encodings.
+I am choosing to not use this feature because `StringIndexer` will repalce the most frequently encounter value with `0.0` and the next most frequent value with `1.0`, and so on. Since some of my categorical features are very uncommon, they may not be present in both the training and validation data, thereby causing `StringIndexer` to represent them differently each type it is applied. To ensure consistency in how categorical values are encoded, I will manually specify the encodings.
 
 We can use SparkSQL to do this.
 
 ```python
-# Encode all categorical variables as numeric
+# Write a query that will encode all categorical variables as numeric for a given table
 categoricalEncodingQuery =  """
 
 SELECT 
@@ -665,7 +665,7 @@ only showing top 5 rows
 """
 ```
 
-Data preperation for modeling: build the feature vectors and index the label
+Now we will prepare the data for modeling by building the feature vectors and indexing the label.
 
 ```python
 from pyspark.ml.feature import StringIndexer, VectorAssembler
@@ -707,7 +707,7 @@ from pyspark.ml.classification import RandomForestClassifier
 rfc = RandomForestClassifier(labelCol="indexedLabel", featuresCol="features")
 ```
 
-The Spark `Pipeline` object allows us to string together different transformers and estimators into a pipeline that can be applied over repeatedly to different datasets.
+The Spark `Pipeline` object allows us to string together different transformers and estimators into a pipeline that can be applied repeatedly to different datasets.
 
 ```python
 train, test = encodedData.randomSplit([0.8, 0.2])
@@ -734,7 +734,7 @@ collected = initialPredictions.select('probability', 'label').collect()
 
 # Creating a list of tuples with probabilities and labels, 
 # e.g. [(prob1, label1), (prob2, label2), ...]. 
-# Be sure to convert the prob value from a numpy flaot to a regular float,
+# Be sure to convert the prob value from a numpy float to a regular float,
 # otherwise the PySpark BinaryClassificatioMetrics will throw a datatype exception.
 
 scoreLabelPairs = [(float(row[0][1]), row[1]) for row in collected]
@@ -751,7 +751,7 @@ Area Under the ROC Curve:  0.642869055243
 """
 ```
 
-Model training can take a while depending on the size of your data, how many trees you want in your ensemble, and the depth that you allow your trees to go. In general, you want each tree to be constructed to the maximum depth permissable by your time and computational resources. This will inherently overfit your data on any given tree, but since your are constructing many different trees from random bootstrapped samples of the data, each tree is overfitting in a slightly different way. A given prediction is made when a datapoint is fed through each tree in the forest and the tree votes on the classification for that datapoint. The votes are tallied and then prediciton is made by taking the majority vote of the trees. The end result is that the high variance between individual trees will average out over the entire forest.
+Model training can take a while depending on the size of your data, how many trees you want in your ensemble, and the depth that you allow your trees to go. In general, you want each tree to be constructed to the maximum depth permissable by your time and computational resources. This will inherently overfit your data on any given tree, but since your are constructing many different trees from random bootstrapped samples of the data, each tree is overfitting in a slightly different way. A given prediction is made when a datapoint is fed through each tree in the forest and the tree votes on the classification for that datapoint. The votes are tallied and a prediction is made by taking the majority vote of the trees. The end result is that the high variance between individual trees will average out over the entire forest.
 
 We will now demonstrate how to tune one model paramter while also demonstrating how to prevent overfitting your data.
 
@@ -882,6 +882,8 @@ Trees:  25 Depth:  12 Area Under ROC Curve 0.629738220373
 
 Now we will use the optimized paramters to create our production `RandomForest` model using the entire body of training data.
 
+One of the reasons for using the `RDD` based `RandomForest` model is that this particular version of Spark only allows a `model.save()` method that enables us to serialze the trained model and then recover it later for deployment in an application. The newer version of Spark (>= Spark 2.0) enable this functionality for a wider variety of models. 
+
 One of the nice properties of Random Forest is the ability to handle categorical variables as well as continuous variables. We can just use the categorical variables as they are right now, e.g. {0, 1, 2, ...}, and the model can work with them, however the model will assume that they are continuous unless otherwise specified. This is exactly what the `categoricalFeaturesInfo` paramter of the `model.train()` method is for. MLlib asks for a data structure called an arity for `categoricalFeaturesInfo`. This just means that we need to give the model a dictionary of the column indexes (0-based) with the number of distinct categorical values in that column.
 
 Here is how we construct the arity.
@@ -911,7 +913,7 @@ print catFeatureInfo
 """
 ```
 
-Now we have to build an RDD of LabeledPoints for inut into the `RandomForest`.
+Now we have to build an RDD of LabeledPoints for input into the `RandomForest`.
 
 ```python
 from pyspark.mllib.regression import LabeledPoint
