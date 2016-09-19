@@ -3,6 +3,7 @@ import { ReAdmissionService } from '../services';
 import { ReAdmissionData } from '../models';
 import { CHART_DIRECTIVES } from 'angular2-highcharts';
 import { ROUTER_DIRECTIVES, Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   moduleId: module.id,
