@@ -265,7 +265,7 @@ only showing top 5 rows
 
 sqlContext.registerDataFrameAsTable(df2, "target")
 ```
-This query explicitly excludes anyone who dies in the hospital -- about 7000 people, in this dataset. It could be the case that you want to include people who die in your own modeling, but I will. We also only include people who have chartevents data because we may end up using that data later.
+This query explicitly excludes anyone who dies in the hospital -- about 7000 people, in this dataset. It could be the case that you want to include people who die in your own modeling, but I will not use them in this modeling effort. We also only include people who have chartevents data because we may end up using that data later.
 ```python
 q4 = """SELECT 
             a.SUBJECT_ID, 
@@ -309,7 +309,7 @@ sqlContext.sql("select COUNT(*) as num_patients from admissions_target").show()
 +------------+
 """
 ```
-* Now, we will extract the patient's gender and age from the `PATIENTS` table -- excluding the patients who died during their stay.
+Now, we will extract the patient's gender and age from the `PATIENTS` table -- excluding the patients who died during their stay.
 ```python
 sqlContext.registerDataFrameAsTable(df_patients, "patients")
 
@@ -323,14 +323,14 @@ q5 = """SELECT
 
 patients = sqlContext.sql(q5)
 ```
-* Let's calculate the patient's age, I rounded the age to 1 decimal place to account for any a more granular representation of the qualitative differences in health that may exist between between really young children (i.e. < 3 months) and slightly older -- but perhaps more healthy -- young children (i.e. 6-12 months).
+Let's calculate the patient's age, I rounded the age to 1 decimal place to account for any a more granular representation of the qualitative differences in health that may exist between between really young children (i.e. < 3 months) and slightly older -- but perhaps more healthy -- young children (i.e. 6-12 months).
 ```python
 from pyspark.sql.functions import datediff, round as Round
 
 df3 = patients.withColumn('AGE', Round(datediff(patients.ADMITTIME, patients.DOB)/365, 1))
 sqlContext.registerDataFrameAsTable(df3, "patients_with_target")
 ```
-* Extract some useful info from the comorbidity scores.
+Extract some useful info from the comorbidity scores.
 ```python
 sqlContext.registerDataFrameAsTable(df_drgcodes, "drg_codes")
 
@@ -344,7 +344,7 @@ q6 = """SELECT
 ccInfo = sqlContext.sql(q6)
 sqlContext.registerDataFrameAsTable(ccInfo, "cc_info")
 ```
-* Join the comorbidity scores to the admission data to create a working dataset ready for cleaning.
+Join the comorbidity scores to the admission data to create a working dataset ready for cleaning.
 ```python
 q7 = """SELECT
             p.ADMISSION_TYPE, 
@@ -366,7 +366,7 @@ sqlContext.registerDataFrameAsTable(workingData, "working_data")
 ```
 #4 Preparing Features for Modeling
 
-*Consolidate ETHNICITY, LANGUAGE, and MARITAL_STATUS labels and select the columns that we want to use for modeling.
+Consolidate `ETHNICITY`, `LANGUAGE`, and `MARITAL_STATUS` labels and select the columns that we want to use for modeling.
 ```python
 q8 = """
     SELECT 
@@ -427,13 +427,13 @@ only showing top 10 rows
 """
 ```
 
-Let's take a quick look at the distribution of age among the patients. The collect methods can take a while with large data sets any you should be careful to not collect so much data that you overflow your driver memory.
+Let's take a quick look at the distribution of age among the patients. The collect method can take a while with large data sets any you should be careful to not collect so much data that you overflow your driver memory.
 
 ```python
 import matplotlib.pyplot as plt
 %matplotlib inline
 
-# We will take sample 20% of our data to get a sense of the age distribution.
+# We will sample 20% of our data to get a sense of the age distribution.
 ages = [age[0] for age in data.select(data.AGE).sample(withReplacement=False, fraction=0.2).collect()]
 
 plt.hist(ages, bins=30)
@@ -473,13 +473,13 @@ sqlContext.sql("""select
 +--------------+----------------------+----------------------+
 """
 ```
-From here we can see that `NEWBORN` patients have a significantly lower readmission rate -- which is good, but these are probably not the people we want to focus on. Therefore, I have chosen to remove the instances of `NEWBORN` because I intend to focus on adressing readmissions for adults. My intution is that newborns may have an unexpected effect of boosting accuracy of a classifier in such a way that does not generalize to the adult population.
+It is worth nothing is that `EMERGENCY` readmissions rates are nearly twice as high as the other classes, indicating that 'ADMISSION_TYPE' is likely to be a useful feature. 
 
-Another point worth nothing is that `EMERGENCY` readmissions rates are nearly twice as high as the other classes. This is likely to be a useful feature. 
+From here we can see that `NEWBORN` patients have a significantly lower readmission rate -- which is good, but these are probably not the people we want to focus on. Therefore, I will remove the instances of `NEWBORN` because I intend to focus on adressing readmissions for adults. My intution is that newborns may have an unexpected effect of boosting accuracy of a classifier in such a way that does not generalize to the adult population.
 
 ```python
-adults = data.filter(data.ADMISSION_TYPE != 'NEWBORN')
-sqlContext.registerDataFrameAsTable(adults, "adults")
+adultsDF = data.filter(data.ADMISSION_TYPE != 'NEWBORN')
+sqlContext.registerDataFrameAsTable(adultsDF, "adults")
 ```
 
 Let's see what the imbalance is between the people who were readmitted within 30 days and those wo were not
@@ -501,71 +501,23 @@ sqlContext.sql("""SELECT
 ```
 From this result we can see that this is a heavily imbalanced class -- about 1 patient is readmitted within 30 days for 23 patients that are not. This imbalance in the target will also pose problems to any classifier that is sensitive to class imbalance, e.g. Logistic Regression and Random Forest
 
-One way we can handle this is to oversample from the minority class -- those who were readmitted -- until they are represented in roughly the same proportion as the those who were not readmitted. There are some sophisticated techniques for doing this such as Synthetic Minority Oversampling Technique (SMOTE), but we will use bootstrapping.
-
-First, let's find all the instances of the positive class.
-
-```python
-positiveLables = sqlContext.sql("""SELECT * 
-                                   FROM adults 
-                                   WHERE DAYS_TO_READMISSION <= 30 
-                                       AND DAYS_TO_READMISSION > 0
-                                """)
-```
-
-Now, we will bootstrap by using the sample with replacement method.
-
-```python
-upsampled = positiveLables.sample(withReplacement=True, fraction=23.0)
-sqlContext.registerDataFrameAsTable(upsampled, "upsampled")
-```
-Next, we combine the upsampled set with the original set of adults
-
-```python
-upsampledData = sqlContext.sql("""SELECT * FROM upsampled
-                                  UNION ALL
-                                  SELECT * FROM adults
-                               """)
-sqlContext.registerDataFrameAsTable(balanced, "balanced")
-```
-
-Finally, let's verify that the proportion of the positive class is reoughly requivalent to that of the negative class.
-
-```python
-sqlContext.sql("""SELECT
-                    AVG(CASE
-                        WHEN DAYS_TO_READMISSION > 0 and DAYS_TO_READMISSION <= 30 THEN 1
-                        ELSE 0
-                        END)
-                    FROM balanced""").show()
-"""
-+------------------+
-|               _c0|
-+------------------+
-|0.5212053771739326|
-+------------------+
-"""
-```
-
-The last step we want to take before starting the modeling process is to encode categorical variables. Many classifiers can handle cariables that are categorical as well as continuous. An example of a categorical variables is `GENDER` which -- in this dataset -- can only take the values of `M` or `F`. An example of a continuous variable is `AGE` which can take any value greater than 0. To encode `GENDER`, `M` can be represented by a `0` and `F` can be represented by a `1`. 
+One way we can handle this is to oversample from the minority class -- those who were readmitted -- until they are represented in roughly the same proportion as the those who were not readmitted. There are some sophisticated techniques for doing this such as Synthetic Minority Oversampling Technique (SMOTE). We will have to address this during model training and cross-validation.
 
 ```python
 from pyspark.sql.functions import udf
 
 labelBinner = udf(lambda days: 1.0 if (days > 0) and (days <= 30) else 0.0, DoubleType())
-labeledData = data.withColumn('label', labelBinner(data.DAYS_TO_READMISSION))
+labeledData = adultsDF.withColumn('label', labelBinner(adultsDF.DAYS_TO_READMISSION))
 ```
-
-In this example I have chosen to remove the instances of NEWBORN because I intend to focus on adressing readmissions for adults. My intution is that newborns may have an unexpected effect of boosting accuracy of my classifier in such a way that does not generalize to the adult population.
 
 We will seperate the data into a dataset that can be used training and validation with a holdout set that will not be used for any training purposes. This holdout data will serve as a final sanity check that our validated model generalizes to new data. 
 
 Finally, we save the data.
 
 ```python
-adults, holdout = labeledData.filter(labeledData.ADMISSION_TYPE != 'NEWBORN').randomSplit([0.9, 0.1])
+adults, holdout = labeledData.randomSplit([0.9, 0.1])
 
-# There is a known bug in Spatk 1.5 that causes writing DataFrames to CSV to fail when Tungsten is enabled.
+# There is a known bug in Spark 1.5 that causes writing DataFrames to CSV to fail when Tungsten is enabled.
 sqlContext.setConf("spark.sql.tungsten.enabled", "false")
 
 adults.coalesce(1).write.format("com.databricks.spark.csv").\
@@ -576,8 +528,6 @@ holdout.coalesce(1).write.format("com.databricks.spark.csv").\
                           option("header", "true").\
                           save("holdout.csv")
 ```
-
-
 
 # 4. Training, Testing, and Validating a Machine Learning Model
 
@@ -616,7 +566,7 @@ We have 25056 training instances and 2830 holdout instances.
 """
 ```
 
-In this case, `AVG_DRG_SEVERITY` and `AVG_DRG_MORTALITY` have been read in as strings instead of doubles. This will need to be corrected before we do any modeling. You never know and should always check 
+In this case, `AVG_DRG_SEVERITY` and `AVG_DRG_MORTALITY` have been read in as strings instead of doubles. This will need to be corrected before we do any modeling. You never know and should always check if `null` values are present.  
 
 ```python
 # We will cast these string variables as double types
@@ -624,7 +574,7 @@ intermediateDF = df_adults.withColumn("AVG_SEVERITY", df_adults.AVG_DRG_SEVERITY
 adults = intermediateDF.withColumn("AVG_MORTALITY", intermediateDF.AVG_DRG_MORTALITY.cast(DoubleType()))
 ```
 
-We handled any missing values earlier, so the next step just a pre-modleing check. Most algorithms do not handle missing data and will throw an exception -- requireing you to replace those missing values witt something. 
+We handled the only missing values earlier, so the next step just a pre-modleing check that is good practice. Most algorithms do not handle missing data and will throw an exception -- requireing you to replace those missing values with something. 
 
 
 ```python
@@ -633,16 +583,18 @@ for col in df_adults.columns:
     if df_adults.where(df_adults[col].isNull()).count() > 0:
         print col
 ```
-There is an entire sub-field of data analysis devoted to imputation of missing data, however, three common methods for imputing missing values are using the mean or median value of a column, replacing it with zero, or dropping it entirely. You can also perform tests to see if the missing values are missing at random or if there is a statisitcally significant number of missing values -- thereby necessitating a prudent imputation stratedgy, e.g. mean, meadian, or fitting a model that can identify a pattern from the other data fields to try and learn what is likely to be in a good value for the missing fields.  
+There is an entire sub-field of data analysis devoted to imputation of missing data, however, three common methods for imputing missing values are using the mean or median value of a column, replacing it with zero, or dropping it entirely. You can also perform tests to see if the missing values are missing at random or if there is a statisitcally significant number of missing values -- thereby necessitating a prudent imputation strategy, e.g. mean, median, or fitting a model that can identify a pattern from the other data fields to try and learn what is likely to be a good value for the missing fields.  
 
-Encode categorical variables as numeric values for ingestion by an algorithm. PySpark has a built-in feature called `StringIndexer` that can be very useful for this purpose. The `StringIndexer` will take as input a column of string valued rows and replace them with numerical values, e.g. all instances `Cat` are replaced with a `0.0` and `Dog` with a `1.0`.
+The last step we want to take before starting the modeling process is to encode categorical variables. Many classifiers can handle cariables that are categorical as well as continuous. An example of a categorical variables is `GENDER` which -- in this dataset -- can only take the values of `M` or `F`. An example of a continuous variable is `AGE` which can take any value greater than 0. To encode `GENDER`, `M` can be represented by a `0` and `F` can be represented by a `1`. 
 
-I am choosing to not use this feature because `StringIndexer` will repalce the most frequently encounter value with `0.0` and the next most frequent value with `1.0`, and so on. Since some of my categorical features are very uncommon, they may end up being represented differently between different training and testing splits during cross validation. To ensure consistency in how categorical values are encoded, I will manually manually specify the encodings.
+PySpark has a built-in feature called `StringIndexer` that can be very useful for this purpose. The `StringIndexer` will take as input a column of string valued rows and replace them with numerical values, e.g. all instances of `Cat` are replaced with a `0.0` and `Dog` with a `1.0`.
+
+I am choosing to not use this feature because `StringIndexer` will repalce the most frequently encounter value with `0.0` and the next most frequent value with `1.0`, and so on. Since some of my categorical features are very uncommon, they may not be present in both the training and validation data, thereby causing `StringIndexer` to represent them differently each type it is applied. To ensure consistency in how categorical values are encoded, I will manually specify the encodings.
 
 We can use SparkSQL to do this.
 
 ```python
-# Encode all categorical variables as numeric
+# Write a query that will encode all categorical variables as numeric for a given table
 categoricalEncodingQuery =  """
 
 SELECT 
@@ -713,7 +665,7 @@ only showing top 5 rows
 """
 ```
 
-Data preperation for modeling: build the feature vectors and index the label
+Now we will prepare the data for modeling by building the feature vectors and indexing the label.
 
 ```python
 from pyspark.ml.feature import StringIndexer, VectorAssembler
@@ -755,7 +707,7 @@ from pyspark.ml.classification import RandomForestClassifier
 rfc = RandomForestClassifier(labelCol="indexedLabel", featuresCol="features")
 ```
 
-The Spark `Pipeline` object allows us to string together different transformers and estimators into a pipeline that can be applied over repeatedly to different datasets.
+The Spark `Pipeline` object allows us to string together different transformers and estimators into a pipeline that can be applied repeatedly to different datasets.
 
 ```python
 train, test = encodedData.randomSplit([0.8, 0.2])
@@ -782,7 +734,7 @@ collected = initialPredictions.select('probability', 'label').collect()
 
 # Creating a list of tuples with probabilities and labels, 
 # e.g. [(prob1, label1), (prob2, label2), ...]. 
-# Be sure to convert the prob value from a numpy flaot to a regular float,
+# Be sure to convert the prob value from a numpy float to a regular float,
 # otherwise the PySpark BinaryClassificatioMetrics will throw a datatype exception.
 
 scoreLabelPairs = [(float(row[0][1]), row[1]) for row in collected]
@@ -799,7 +751,7 @@ Area Under the ROC Curve:  0.642869055243
 """
 ```
 
-Model training can take a while depending on the size of your data, how many trees you want in your ensemble, and the depth that you allow your trees to go. In general, you want each tree to be constructed to the maximum depth permissable by your time and computational resources. This will inherently overfit your data on any given tree, but since your are constructing many different trees from random bootstrapped samples of the data, each tree is overfitting in a slightly different way. A given prediction is made when a datapoint is fed through each tree in the forest and the tree votes on the classification for that datapoint. The votes are tallied and then prediciton is made by taking the majority vote of the trees. The end result is that the high variance between individual trees will average out over the entire forest.
+Model training can take a while depending on the size of your data, how many trees you want in your ensemble, and the depth that you allow your trees to go. In general, you want each tree to be constructed to the maximum depth permissable by your time and computational resources. This will inherently overfit your data on any given tree, but since your are constructing many different trees from random bootstrapped samples of the data, each tree is overfitting in a slightly different way. A given prediction is made when a datapoint is fed through each tree in the forest and the tree votes on the classification for that datapoint. The votes are tallied and a prediction is made by taking the majority vote of the trees. The end result is that the high variance between individual trees will average out over the entire forest.
 
 We will now demonstrate how to tune one model paramter while also demonstrating how to prevent overfitting your data.
 
@@ -930,6 +882,8 @@ Trees:  25 Depth:  12 Area Under ROC Curve 0.629738220373
 
 Now we will use the optimized paramters to create our production `RandomForest` model using the entire body of training data.
 
+One of the reasons for using the `RDD` based `RandomForest` model is that this particular version of Spark only allows a `model.save()` method that enables us to serialze the trained model and then recover it later for deployment in an application. The newer version of Spark (>= Spark 2.0) enable this functionality for a wider variety of models. 
+
 One of the nice properties of Random Forest is the ability to handle categorical variables as well as continuous variables. We can just use the categorical variables as they are right now, e.g. {0, 1, 2, ...}, and the model can work with them, however the model will assume that they are continuous unless otherwise specified. This is exactly what the `categoricalFeaturesInfo` paramter of the `model.train()` method is for. MLlib asks for a data structure called an arity for `categoricalFeaturesInfo`. This just means that we need to give the model a dictionary of the column indexes (0-based) with the number of distinct categorical values in that column.
 
 Here is how we construct the arity.
@@ -959,7 +913,7 @@ print catFeatureInfo
 """
 ```
 
-Now we have to build an RDD of LabeledPoints for inut into the `RandomForest`.
+Now we have to build an RDD of LabeledPoints for input into the `RandomForest`.
 
 ```python
 from pyspark.mllib.regression import LabeledPoint
@@ -1039,6 +993,6 @@ model.save(modelName)
 """
 ```
 
-With the model saved, we can write a Flask application that instantiates the saved model and deploys it as a restful service via Cloud Foundry. The service can then accept data points over http and return predictions for use in an application. The code and documentation for this can be found at: https://github.com/MichaelAHood/readmissions-risk-scorer/tree/master/src/risk-scorer
+With the model saved, we can write a Flask application that instantiates the saved model and deploys it as a restful service via Cloud Foundry. The service can then accept data points over http and return predictions for use in an application. The code and documentation for this can be found at: https://github.com/ProKarma-Inc/TAP-readmissions-reduction/tree/master/src/data-APIs/risk-scorer
 
 **Note 1**: We also have access to a rich set of electronic chart data that contains entries for daily blood pressure, heart rate, various types of urinalysis data, and thousands of other medical results and biomarker data. I have deliberately not included this data for the reason that for any given type of entry on the electronic record only a subset of the patients have that specific type of data record. For example, there are over 40,000 unique patients comprising nearly 59,000 unique admissions. If I want to train a model that uses features such as heart rate, body weight, and blood pressure data, I need to find the set of patients such that most of the patients have that heart rate AND body weight AND blood pressure data. As you add more features, the set of patients that have all of those features quickly becomes smaller and smaller. There are many ways you can address this shortcoming such as imputation of missing values, or only selecting chart data that nearly all the patients have in their record. I chose to use comorbidity info (contained in `DRGCODES.csv`) because it can be thought of as a lower dimensional representation of the many different biomarkers that come along with a given diagnosis.
