@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PatientService, ReAdmissionService } from '../services';
 import { Patient } from "../models/patient";
 import { Router, ActivatedRoute } from '@angular/router';
 import { CHART_DIRECTIVES } from 'angular2-highcharts';
 import { RiskLegendComponent } from '../risk-legend';
 import {ComorbidsDistribution} from "../models/comorbidsDistribution";
-import {AgeDistribution} from "../models/ageDistribution";
+import { AgeDistribution } from "../models/ageDistribution";
+import { Subscription } from 'rxjs';
 
 @Component({
   moduleId: module.id,
@@ -15,7 +16,7 @@ import {AgeDistribution} from "../models/ageDistribution";
   providers: [PatientService, ReAdmissionService],
   directives: [RiskLegendComponent, CHART_DIRECTIVES]
 })
-export class ReadmissionRiskResultsComponent implements OnInit {
+export class ReadmissionRiskResultsComponent implements OnInit, OnDestroy {
   private patient: Patient;
   private errorMessage: string;
   private admissionId: number;
@@ -30,6 +31,9 @@ export class ReadmissionRiskResultsComponent implements OnInit {
   private mortalityToolTip: string;
   private ageToolTip: string;
 
+  private patientSubscription: Subscription;
+  private referenceDataSubscription: Subscription;
+
   constructor(private patientService: PatientService, private readmissionService: ReAdmissionService,
               private router: Router, private activatedRouter: ActivatedRoute) {
        this.admissionId = this.activatedRouter.snapshot.params['admissionId'];
@@ -42,13 +46,13 @@ export class ReadmissionRiskResultsComponent implements OnInit {
        this.ageToolTip = 'Age compared to the population';
   };
 
-    ngOnInit() {
-      this.patientService.getAllPatients()
+    public ngOnInit() {
+      this.patientSubscription = this.patientService.getAllPatients()
         .subscribe(
           patients => {
               this.patient = patients.find(patient => patient.hadm_id == this.admissionId);
 
-              this.readmissionService.getReferenceData(this.patient.age)
+             this.referenceDataSubscription = this.readmissionService.getReferenceData(this.patient.age)
                 .subscribe(
                   referenceData =>{
                     this.severityChart(referenceData.comorbidSeverities);
@@ -61,6 +65,16 @@ export class ReadmissionRiskResultsComponent implements OnInit {
           error => this.errorMessage = error
         );
     };
+
+    public ngOnDestroy(){
+      if(!this.patientSubscription.isUnsubscribed){
+        this.patientSubscription.unsubscribe();
+      }
+
+      if(!this.referenceDataSubscription.isUnsubscribed){
+        this.referenceDataSubscription.unsubscribe();
+      }
+    }
 
   public backToPatientSelect(){
     this.router.navigate(['']);

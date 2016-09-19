@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { DischargePopulationComponent } from './discharge-population.component';
 
 @Component({
@@ -7,11 +7,7 @@ import { DischargePopulationComponent } from './discharge-population.component';
   templateUrl: 'patient-select.component.html',
   directives: [DischargePopulationComponent]
 })
-export class PatientSelectComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
+export class PatientSelectComponent {
+  constructor() {
   }
-
 }

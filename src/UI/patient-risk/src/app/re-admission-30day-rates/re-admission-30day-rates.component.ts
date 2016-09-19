@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ReAdmissionService } from '../services';
 import { ReAdmissionData } from '../models';
 import { CHART_DIRECTIVES } from 'angular2-highcharts';
@@ -12,12 +12,13 @@ import { ROUTER_DIRECTIVES, Router, ActivatedRoute } from '@angular/router';
   providers: [ReAdmissionService],
   directives: [CHART_DIRECTIVES]
 })
-export class ReAdmission30dayRatesComponent implements OnInit{
+export class ReAdmission30dayRatesComponent implements OnInit, OnDestroy{
   private errorMessage: string;
   private reAdmissionData: ReAdmissionData;
   private readmissionRatesOptions: HighchartsOptions;
   private chartSizeAndType: any;
   private toPatientsPage: boolean;
+  private reAdmissionSubsciption: Subscription;
 
   constructor(private reAdmissionService: ReAdmissionService, private router: Router, private activatedRouter: ActivatedRoute) {
     let fullSize: string = this.activatedRouter.snapshot.params['fullSize'];
@@ -30,14 +31,20 @@ export class ReAdmission30dayRatesComponent implements OnInit{
     }
   }
 
-  ngOnInit(){
-    this.reAdmissionService.get30DayReAdmissionRates()
+  public ngOnInit(){
+    this.reAdmissionSubsciption = this.reAdmissionService.get30DayReAdmissionRates()
       .subscribe(raData => {
           this.reAdmissionData = raData;
           this.readmissionRatesChart();
         },
       error => this.errorMessage = error
       );
+  }
+
+  public ngOnDestroy(){
+    if(this.reAdmissionSubsciption.isUnsubscribed){
+      this.reAdmissionSubsciption.unsubscribe();
+    }
   }
 
   public toPatientList(){
@@ -47,7 +54,7 @@ export class ReAdmission30dayRatesComponent implements OnInit{
   public navigateToReadmissionRiskChart(){
     this.router.navigate(['/readmissionRates', 'fullSize']);
   }
-  
+
   private readmissionRatesChart() {
 
     let xAxisTitles: Array<string> = [];
