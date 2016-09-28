@@ -83,7 +83,6 @@ conf.set('spark.driver.memory', '2g')
 conf.set('spark.executor.memory', '2g')
 conf.set('spark.executor.cores', 4)
 conf.set('spark.executor.instances', 4)
-conf.set('spark.kryoserializer.buffer.max.mb', 512)
 
 sc = SparkContext(conf=conf)
 sqlContext = SQLContext(sc)
