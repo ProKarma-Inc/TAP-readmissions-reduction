@@ -65,21 +65,27 @@ Since we are working with csv files the `spark-csv` package is extremely useful 
 ```python
 import os
 
-os.environ['PYSPARK_SUBMIT_ARGS'] = "--deploy-mode client \
-                                     --packages com.databricks:spark-csv_2.10:1.4.0 \
-                                     --driver-memory 2G \
-                                     --num-executors 4 \
-                                     --executor-memory 8G\
-                                     pyspark-shell"
+import os
+os.environ['PYSPARK_SUBMIT_ARGS'] = "--packages com.databricks:spark-csv_2.10:1.4.0 pyspark-shell"
+os.environ['PYSPARK_PYTHON'] = "python2.7"
 ```
 Notice that we also explicitly pass the `client` for the `--deploy-mode` argument. This will allow us to use spark in the cell based REPL workflow that makes Jupyter notebooks so useful for data analysis.
 
-**Note:** For exploratory data analysis and investigating a dataset I prefer to use `spark-submit` to set the parameters for the SparkContext. You can also edit the `spark-defaults.conf` to edit the defaults, adjusting parameters like `--num-executors`, `--driver-memory`, `--executor-memory`, and `--num-executors`, etc. However, `spark-submit` has the benefit that the arguments you pass override whatever their corresponding value is in `spark-defaults.conf`. The `SparkConf` object also gives you a great deal of control over the specific resources and properties your Spark application has. You can read more [here](http://spark.apache.org/docs/latest/submitting-applications.html).  
+**Note:** For exploratory data analysis and investigating a dataset I prefer to use `spark-submit` to set the parameters for the SparkContext. You can also edit the `spark-defaults.conf` to edit the defaults, adjusting parameters like `--num-executors`, `--driver-memory`, `--executor-memory`, and `--num-executors`, etc. The `SparkConf` object also gives you control over the specific resources and properties your Spark application has. You can read more [here](http://spark.apache.org/docs/latest/submitting-applications.html).  
 
 Let's create the `SparkContext` and the `SQLContext`. `SQLContext` allows us to create Spark DataFrames, enabling us to use SQL queries against our dataframes. DataFrames also allow us to use `pandas` style dataframe operations when it is more appropriate. Additionally, you can use `map`, `filter`, `reduceByKey`, `flatMap`, etc. on dataframes, just like you can with RDDs. 
 
 ```python
-sc = SparkContext()
+# Create the SparkContext
+conf = SparkConf()
+conf.setMaster('yarn-client')
+conf.set('spark.driver.memory', '2g')
+conf.set('spark.executor.memory', '2g')
+conf.set('spark.executor.cores', 4)
+conf.set('spark.executor.instances', 4)
+conf.set('spark.kryoserializer.buffer.max.mb', 512)
+
+sc = SparkContext(conf=conf)
 sqlContext = SQLContext(sc)
 # Tungsten is the built-in code execution optimizer. It should be on by default, but make sure it is on.
 sqlContext.setConf("spark.sql.tungsten.enabled", "true")
