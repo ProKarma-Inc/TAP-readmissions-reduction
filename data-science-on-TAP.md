@@ -369,7 +369,7 @@ q7 = """SELECT
 workingData = sqlContext.sql(q7)
 sqlContext.registerDataFrameAsTable(workingData, "working_data")
 ```
-#4 Preparing Features for Modeling
+Now let's prepare the data features for modeling.
 
 Consolidate `ETHNICITY`, `LANGUAGE`, and `MARITAL_STATUS` labels and select the columns that we want to use for modeling.
 ```python
