@@ -330,7 +330,7 @@ patients = sqlContext.sql(q5)
 ```
 Let's calculate the patient's age, I rounded the age to 1 decimal place to account for any a more granular representation of the qualitative differences in health that may exist between between really young children (i.e. < 3 months) and slightly older -- but perhaps more healthy -- young children (i.e. 6-12 months).
 ```python
-from pyspark.sql.functions import datediff, round as Round
+from pyspark.sql.functions import round as Round
 
 df3 = patients.withColumn('AGE', Round(datediff(patients.ADMITTIME, patients.DOB)/365, 1))
 sqlContext.registerDataFrameAsTable(df3, "patients_with_target")
@@ -510,6 +510,7 @@ One way we can handle this is to oversample from the minority class -- those who
 
 ```python
 from pyspark.sql.functions import udf
+from pyspark.sql.types import *
 
 labelBinner = udf(lambda days: 1.0 if (days > 0) and (days <= 30) else 0.0, DoubleType())
 labeledData = adultsDF.withColumn('label', labelBinner(adultsDF.DAYS_TO_READMISSION))
